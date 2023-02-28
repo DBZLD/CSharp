@@ -12,10 +12,10 @@ C:\Users\dbzld\OneDrive\바탕 화면\CSharpWork5\CSharpWork5\obj\Debug\CSharpWo
 C:\Users\dbzld\OneDrive\바탕 화면\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.csproj.CoreCompileInputs.cache
 C:\Users\dbzld\OneDrive\바탕 화면\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.exe
 C:\Users\dbzld\OneDrive\바탕 화면\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.pdb
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.exe.config
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.exe
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.pdb
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.csproj.AssemblyReference.cache
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.csproj.CoreCompileInputs.cache
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.exe
-C:\Users\dbzld\OneDrive\문서\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.pdb
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.exe.config
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.exe
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\bin\Debug\CSharpWork5.pdb
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.csproj.AssemblyReference.cache
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.csproj.CoreCompileInputs.cache
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.exe
+C:\Users\admin\Documents\GitHub\CSharp\CSharpWork5\CSharpWork5\obj\Debug\CSharpWork5.pdb

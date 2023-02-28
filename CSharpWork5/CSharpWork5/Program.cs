@@ -11,22 +11,98 @@ namespace CSharpWork5
     {
         static void Main(string[] args)
         {
+            #region main
             Draw draw = new Draw();
             Player player = new Player();
             Enemy enemy = new Enemy();
-            int nTurn = 0;
-            draw.DrawIntroduceScreen();
-            draw.DrawMap(player, enemy);
-            draw.DrawInterface(player, enemy, nTurn);
-            draw.DrawUnitMove(player, enemy);
+            int nTurn = 1;
+            int nTurnCount = 0;
+            bool bTurn = false;
+            string chTurn = "";
+            Random rand = new Random();
+            int nSetTurn = rand.Next(0, 2);
+            if (nSetTurn == 0)
+            {
+                bTurn = true;
+                chTurn = "당신";
+            }
+            else if (nSetTurn == 1)
+            {
+                bTurn = false;
+                chTurn = "상대";
+            }
 
+            draw.DrawIntroduceScreen();
+            while (true)
+            {
+                //배경 그리기
+                draw.DrawBackground(player, enemy, nTurn, chTurn);
+                draw.DrawMap(player, enemy);
+                draw.DrawUnitMove(player, enemy);
+                //윳 던지기 
+                while(true)
+                {
+                    player.bReroll = false;
+                    enemy.bReroll = false;
+                    if (bTurn == true)
+                    {
+                        player.PlayerThrowYut();
+                        draw.DrawPlayerYut(player);
+                        player.PlayerMove();
+                    }
+                    else if (bTurn == false)
+                    {
+                        enemy.EnemyThrowYut();
+                        draw.DrawEnemyYut(enemy);
+                        enemy.EnemyMove();
+                    }
+                    if( player.bReroll == false && enemy.bReroll == false) { break; }
+                }
+
+                //턴 넘기기 
+                if(bTurn == false)
+                {
+                    bTurn = true;
+                    chTurn = "당신";
+                    nTurnCount++;
+                }
+                else if(bTurn == true)
+                {
+                    bTurn = false;
+                    chTurn = "상대";
+                    nTurnCount++;
+                }
+                if(nTurnCount == 2)
+                {
+                    nTurnCount = 0;
+                    nTurn++;
+                }
+            }
+            #endregion
         }
     }
+
+    #region draw
     class Draw
     {
+        public void DrawBackground(Player player, Enemy enemy, int nTurn, string chTurn)
+        {
+            Console.SetCursorPosition(0, 45);
+            Console.ForegroundColor = ConsoleColor.Black;
+            for (int i = 0; i < 123; i++) { System.Console.Write("━"); }
+            Console.SetCursorPosition(5, 47);
+            System.Console.Write($"현재 턴 : {nTurn}");
+            Console.SetCursorPosition(5, 49);
+            System.Console.Write($"{chTurn}의 턴");
+            Console.SetCursorPosition(5, 51);
+            System.Console.Write($"보유한 돈 : {player.nPlayerMoney}");
+            Console.SetCursorPosition(5, 53);
+            System.Console.Write($"상대가 보유한 돈 : {enemy.nEnemyMoney}");
+        }
         public void DrawIntroduceScreen()
         {
-            Console.SetWindowSize(124, 55);
+            Console.SetWindowSize(124, 60);
+            Console.CursorVisible = false;
             Console.Title = "부루마블 + 윳놀이";
             Console.BackgroundColor = ConsoleColor.White;
             Console.Clear();
@@ -37,15 +113,15 @@ namespace CSharpWork5
             Console.SetCursorPosition(10, 7);
             System.Console.Write("맵 설명");
             Console.SetCursorPosition(10, 9);
-            System.Console.Write("맵은 윳놀이와 동일하고 윳을 던져서 움직인다.(빽도 있음)");
+            System.Console.Write("맵은 윳놀이와 동일하고 윳을 던져서 움직인다.");
             Console.SetCursorPosition(10, 10);
             System.Console.Write("말은 1개이며 플레이어의 말은 파란색, 상대의 말은 빨간색이다.");
             Console.SetCursorPosition(10, 11);
-            System.Console.Write("라인의 각 중간에는 이벤트 칸이 있다");
+            System.Console.Write("라인의 각 중간에는 이벤트 칸이 있고 감옥은 두 곳이 있다.");
             Console.SetCursorPosition(10, 12);
             System.Console.Write("이벤트 칸과 각 라인의 모서리를 제외한 칸은 건물을 지어 통행료를 받을 수 있고 건물 인수와 랜드마크 건설은 없다.");
             Console.SetCursorPosition(10, 13);
-            System.Console.Write("아무것도 짓지 않은 곳은 흰색, 플레이어의 소유는 빨강색, 상대의 소유는 파란색이고 건물의 단계는 숫자로 표시된다.");
+            System.Console.Write("아무것도 없는 곳은 검은색, 플레이어 소유는 빨강색, 상대 소유는 파란색 테두리고 건물의 단계는 숫자로 표시된다.");
             Console.SetCursorPosition(10, 15);
             System.Console.Write("점수 설명");
             Console.SetCursorPosition(10, 17);
@@ -64,1476 +140,511 @@ namespace CSharpWork5
             System.Console.Write("부정적인 이벤트는 자신의 점수 감소, 상대의 점수 증가, 자신을 감옥으로 이동이 있다.");
             Console.SetCursorPosition(10, 26);
             System.Console.Write("감옥에 걸리면 윳과 모가 나오거나 2턴이 지나야 움직일 수 있다.");
-            Console.SetCursorPosition(10, 29);
-            System.Console.Write("┏━━━━┓           □    ■   ■");
-            Console.SetCursorPosition(10, 30);
-            System.Console.Write("┃▒▒▒▒┃           □    ■   Ｘ");
-            Console.SetCursorPosition(10, 31);
-            System.Console.Write("┃▒▒▒▒┃           □    ■   ■");
-            Console.SetCursorPosition(10, 32);
-            System.Console.Write("┗━━━━┛           □    ■   ■");
-            Console.SetCursorPosition(10, 34);
-            System.Console.Write("  말        윳의 앞면 뒷면 빽도");
-            Console.SetCursorPosition(5, 40);
+            Console.SetCursorPosition(5, 29);
             System.Console.Write("게임을 시작하려면 아무 키나 누르세요");
-            Console.ReadKey();
+            Console.ReadKey(true);
             Console.Clear();
         }
+        #region drawtile
+        public void DrawTileEdge(int nX, int nY)
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(nX, nY);
+            System.Console.Write("┏━━━━━━━━━━━━━━┓");
+            Console.SetCursorPosition(nX, nY + 1);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 2);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 3);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 4);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 5);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 6);
+            System.Console.Write("┃              ┃");
+            Console.SetCursorPosition(nX, nY + 7);
+            System.Console.Write("┗━━━━━━━━━━━━━━┛");
+        }
+        public void DrawTileWidth(int nX, int nY, bool PlayerBuilding, bool EnemyBuilding, int PlayerBuildingLevel, int EnemyBuildingLevel)
+        {
+            if (PlayerBuilding == false && EnemyBuilding == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┣━━━━━━━━━━┫");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 6);
+                System.Console.Write("┗━━━━━━━━━━┛");
+            }
+            else if (PlayerBuilding == true && EnemyBuilding == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┣━━━━━━━━━━┫");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write($"┃     {PlayerBuildingLevel}    ┃");
+                Console.SetCursorPosition(nX, nY + 6);
+                System.Console.Write("┗━━━━━━━━━━┛");
+            }
+            else if (PlayerBuilding == false && EnemyBuilding == true)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┣━━━━━━━━━━┫");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write($"┃     {EnemyBuildingLevel}    ┃");
+                Console.SetCursorPosition(nX, nY + 6);
+                System.Console.Write("┗━━━━━━━━━━┛");
+            }
+        }
+        public void DrawTileHeight(int nX, int nY, bool PlayerBuilding, bool EnemyBuilding, int PlayerBuildingLevel, int EnemyBuildingLevel)
+        {
+            if (PlayerBuilding == false && EnemyBuilding == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━┳━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write("┗━━━━━━━━┻━━━┛");
+            }
+            else if (PlayerBuilding == true && EnemyBuilding == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━┳━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write($"┃        ┃ {PlayerBuildingLevel} ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write("┗━━━━━━━━┻━━━┛");
+            }
+            else if (PlayerBuilding == false && EnemyBuilding == true)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━┳━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write($"┃        ┃ {EnemyBuildingLevel} ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┃        ┃   ┃");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write("┗━━━━━━━━┻━━━┛");
+            }
+        }
+        public void DrawPrison(int nX, int nY)
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(nX, nY);
+            System.Console.Write("┏━━━━━━━━━━┓");
+            Console.SetCursorPosition(nX, nY + 1);
+            System.Console.Write("┃          ┃");
+            Console.SetCursorPosition(nX, nY + 2);
+            System.Console.Write("┃          ┃");
+            Console.SetCursorPosition(nX, nY + 3);
+            System.Console.Write("┃          ┃");
+            Console.SetCursorPosition(nX, nY + 4);
+            System.Console.Write("┣━━━━━━━━━━┫");
+            Console.SetCursorPosition(nX, nY + 5);
+            System.Console.Write("┃          ┃");
+            Console.SetCursorPosition(nX, nY + 6);
+            System.Console.Write("┗━━━━━━━━━━┛");
+        }
 
+        #endregion
         #region drawmap
         public void DrawMap(Player player, Enemy enemy)
         {
             //0(start)
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(10, 37);
-            System.Console.Write("┏━━━━━━━━━━━━━━┓");
-            Console.SetCursorPosition(10, 38);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 39);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 40);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 41);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 42);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 43);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 44);
-            System.Console.Write("┗━━━━━━━━━━━━━━┛");
-            Console.SetCursorPosition(17, 43);
+            DrawTileEdge(10, 37);
+            Console.SetCursorPosition(17, 42);
             System.Console.Write("출발");
 
-            #region line1
             //1
-            if (player.PlayerBuilding1 == false && enemy.EnemyBuilding1 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(30, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 43);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if(player.PlayerBuilding1 == true && enemy.EnemyBuilding1 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(30, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 43);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel1}    ┃");
-                Console.SetCursorPosition(30, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if(player.PlayerBuilding1 == false && enemy.EnemyBuilding1 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(30, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 43);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel1}    ┃");
-                Console.SetCursorPosition(30, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawTileWidth(30, 38, player.PlayerBuilding1, enemy.EnemyBuilding1, player.PlayerBuildingLevel1, enemy.EnemyBuildingLevel1);
             //2
-            if (player.PlayerBuilding2 == false && enemy.EnemyBuilding2 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(47, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(47, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(47, 43);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding2 == true && enemy.EnemyBuilding2 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(47, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(47, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(47, 43);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel2}    ┃");
-                Console.SetCursorPosition(47, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding2 == false && enemy.EnemyBuilding2 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(47, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(47, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(47, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(47, 43);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel2}    ┃");
-                Console.SetCursorPosition(47, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawTileWidth(47, 38, player.PlayerBuilding2, enemy.EnemyBuilding2, player.PlayerBuildingLevel2, enemy.EnemyBuildingLevel2);
             //3
-            if (player.PlayerBuilding3 == false && enemy.EnemyBuilding3 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(64, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(64, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(64, 43);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding3 == true && enemy.EnemyBuilding3 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(64, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(64, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(64, 43);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel3}    ┃");
-                Console.SetCursorPosition(64, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding3 == false && enemy.EnemyBuilding3 == true)
-            {
-                Console.SetCursorPosition(64, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(64, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(64, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(64, 43);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel3}    ┃");
-                Console.SetCursorPosition(64, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawTileWidth(64, 38, player.PlayerBuilding3, enemy.EnemyBuilding3, player.PlayerBuildingLevel3, enemy.EnemyBuildingLevel3);
             //4
-            if (player.PlayerBuilding4 == false && enemy.EnemyBuilding4 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(81, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 43);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding4 == true && enemy.EnemyBuilding4 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(81, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 43);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel4}    ┃");
-                Console.SetCursorPosition(81, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding4 == false && enemy.EnemyBuilding4 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(81, 38);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 39);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 40);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 41);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 42);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 43);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel4}    ┃");
-                Console.SetCursorPosition(81, 44);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            #endregion
+            DrawTileWidth(81, 38, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
 
             //5
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(98, 37);
-            System.Console.Write("┏━━━━━━━━━━━━━━┓");
-            Console.SetCursorPosition(98, 38);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 39);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 40);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 41);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 42);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 43);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 44);
-            System.Console.Write("┗━━━━━━━━━━━━━━┛");
+            DrawTileEdge(98, 37);
 
-            #region line2
             //6
-            if (player.PlayerBuilding6 == false && enemy.EnemyBuilding6 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(100, 30);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 31);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 32);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 33);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 34);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 35);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding6 == true && enemy.EnemyBuilding6 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(100, 30);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 31);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 32);
-                System.Console.Write($"┃        ┃ {player.PlayerBuildingLevel6} ┃");
-                Console.SetCursorPosition(100, 33);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 34);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 35);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding6 == false && enemy.EnemyBuilding6 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(100, 30);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 31);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 32);
-                System.Console.Write($"┃        ┃ {enemy.EnemyBuildingLevel6} ┃");
-                Console.SetCursorPosition(100, 33);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 34);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 35);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-
+            DrawTileHeight(100, 30, player.PlayerBuilding6, enemy.EnemyBuilding6, player.PlayerBuildingLevel6, enemy.EnemyBuildingLevel6);
             //7
-            if (player.PlayerBuilding7 == false && enemy.EnemyBuilding7 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(100, 23);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 24);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 25);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 26);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 27);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 28);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding7 == true && enemy.EnemyBuilding7 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(100, 23);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 24);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 25);
-                System.Console.Write($"┃        ┃ {player.PlayerBuildingLevel7} ┃");
-                Console.SetCursorPosition(100, 26);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 27);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 28);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding7 == false && enemy.EnemyBuilding7 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(100, 23);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 24);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 25);
-                System.Console.Write($"┃        ┃ {enemy.EnemyBuildingLevel7} ┃");
-                Console.SetCursorPosition(100, 26);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 27);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 28);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-
+            DrawTileHeight(100, 23, player.PlayerBuilding7, enemy.EnemyBuilding7, player.PlayerBuildingLevel7, enemy.EnemyBuildingLevel7);
             //8
-            if (player.PlayerBuilding8 == false && enemy.EnemyBuilding8 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(100, 16);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 17);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 18);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 19);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 20);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 21);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding8 == true && enemy.EnemyBuilding8 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(100, 16);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 17);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 18);
-                System.Console.Write($"┃        ┃ {player.PlayerBuildingLevel8} ┃");
-                Console.SetCursorPosition(100, 19);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 20);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 21);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding8 == false && enemy.EnemyBuilding8 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(100, 16);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 17);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 18);
-                System.Console.Write($"┃        ┃ {enemy.EnemyBuildingLevel8} ┃");
-                Console.SetCursorPosition(100, 19);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 20);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 21);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-
+            DrawTileHeight(100, 16, player.PlayerBuilding8, enemy.EnemyBuilding8, player.PlayerBuildingLevel8, enemy.EnemyBuildingLevel8);
             //9
-            if (player.PlayerBuilding9 == false && enemy.EnemyBuilding9 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(100, 9);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 10);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 11);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 12);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 13);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 14);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding9 == true && enemy.EnemyBuilding9 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(100, 9);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 10);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 11);
-                System.Console.Write($"┃        ┃ {player.PlayerBuildingLevel9} ┃");
-                Console.SetCursorPosition(100, 12);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 13);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 14);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            else if (player.PlayerBuilding9 == false && enemy.EnemyBuilding9 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(100, 9);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(100, 10);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 11);
-                System.Console.Write($"┃        ┃ {enemy.EnemyBuildingLevel9} ┃");
-                Console.SetCursorPosition(100, 12);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 13);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(100, 14);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-            #endregion
+            DrawTileHeight(100, 9, player.PlayerBuilding9, enemy.EnemyBuilding9, player.PlayerBuildingLevel9, enemy.EnemyBuildingLevel9);
 
             //10
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(98, 0);
-            System.Console.Write("┏━━━━━━━━━━━━━━┓");
-            Console.SetCursorPosition(98, 1);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 2);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 3);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 4);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 5);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 6);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(98, 7);
-            System.Console.Write("┗━━━━━━━━━━━━━━┛");
+            DrawTileEdge(98, 0);
 
-            #region line3
             //11
-            if (player.PlayerBuilding11 == false && enemy.EnemyBuilding11 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(81, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 5);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding11 == true && enemy.EnemyBuilding11 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(81, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 5);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel1}    ┃");
-                Console.SetCursorPosition(81, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding11 == false && enemy.EnemyBuilding11 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(81, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 5);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel1}    ┃");
-                Console.SetCursorPosition(81, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawTileWidth(30, 0, player.PlayerBuilding11, enemy.EnemyBuilding11, player.PlayerBuildingLevel11, enemy.EnemyBuildingLevel11);
             //12
-            if (player.PlayerBuilding12 == false && enemy.EnemyBuilding12 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(66, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(66, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(66, 5);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding12 == true && enemy.EnemyBuilding12 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(66, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(66, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(66, 5);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel12}    ┃");
-                Console.SetCursorPosition(66, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding12 == false && enemy.EnemyBuilding12 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(66, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(66, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(66, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(66, 5);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel12}    ┃");
-                Console.SetCursorPosition(66, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawPrison(47, 0);
+            Console.SetCursorPosition(51, 5);
+            System.Console.Write("감옥");
             //13
-            if (player.PlayerBuilding13 == false && enemy.EnemyBuilding13 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(49, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(49, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(49, 5);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding13 == true && enemy.EnemyBuilding13 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(49, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(49, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(49, 5);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel13}    ┃");
-                Console.SetCursorPosition(49, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding13 == false && enemy.EnemyBuilding13 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(49, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(49, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(49, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(49, 5);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel13}    ┃");
-                Console.SetCursorPosition(49, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
+            DrawTileWidth(64, 0, player.PlayerBuilding13, enemy.EnemyBuilding13, player.PlayerBuildingLevel13, enemy.EnemyBuildingLevel13);
             //14
-            if (player.PlayerBuilding14 == false && enemy.EnemyBuilding14 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(32, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(32, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(32, 5);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding14 == true && enemy.EnemyBuilding14 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(32, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(32, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(32, 5);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel14}    ┃");
-                Console.SetCursorPosition(32, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding14 == false && enemy.EnemyBuilding14 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(32, 0);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(32, 1);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 2);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 3);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(32, 4);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(32, 5);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel14}    ┃");
-                Console.SetCursorPosition(32, 6);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            #endregion
+            DrawTileWidth(81, 0, player.PlayerBuilding14, enemy.EnemyBuilding14, player.PlayerBuildingLevel14, enemy.EnemyBuildingLevel14);
 
             //15
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(10, 0);
-            System.Console.Write("┏━━━━━━━━━━━━━━┓");
-            Console.SetCursorPosition(10, 1);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 2);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 3);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 4);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 5);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 6);
-            System.Console.Write("┃              ┃");
-            Console.SetCursorPosition(10, 7);
-            System.Console.Write("┗━━━━━━━━━━━━━━┛");
-
-            #region line4
+            DrawTileEdge(10, 0);
 
             //16
-            if (player.PlayerBuilding16 == false && enemy.EnemyBuilding16 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(10, 9);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 10);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 11);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 12);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 13);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 14);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding16 == true && enemy.EnemyBuilding16 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(10, 9);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 10);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 11);
-                System.Console.Write($"┃ {player.PlayerBuildingLevel16} ┃        ┃");
-                Console.SetCursorPosition(10, 12);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 13);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 14);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding16 == false && enemy.EnemyBuilding16 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(10, 9);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 10);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 11);
-                System.Console.Write($"┃ {enemy.EnemyBuildingLevel16} ┃        ┃");
-                Console.SetCursorPosition(10, 12);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 13);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 14);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-
+            DrawTileHeight(10, 30, player.PlayerBuilding16, enemy.EnemyBuilding16, player.PlayerBuildingLevel16, enemy.EnemyBuildingLevel16);
             //17
-            if (player.PlayerBuilding17 == false && enemy.EnemyBuilding17 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(10, 16);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 17);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 18);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 19);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 20);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 21);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding17 == true && enemy.EnemyBuilding17 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(10, 16);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 17);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 18);
-                System.Console.Write($"┃ {player.PlayerBuildingLevel17} ┃        ┃");
-                Console.SetCursorPosition(10, 19);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 20);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 21);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding17 == false && enemy.EnemyBuilding17 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(10, 16);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 17);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 18);
-                System.Console.Write($"┃ {enemy.EnemyBuildingLevel17} ┃        ┃");
-                Console.SetCursorPosition(10, 19);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 20);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 21);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-
+            DrawTileHeight(10, 23, player.PlayerBuilding17, enemy.EnemyBuilding17, player.PlayerBuildingLevel17, enemy.EnemyBuildingLevel17);
             //18
-            if (player.PlayerBuilding18 == false && enemy.EnemyBuilding18 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(10, 23);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 24);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 25);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 26);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 27);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 28);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding18 == true && enemy.EnemyBuilding18 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(10, 23);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 24);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 25);
-                System.Console.Write($"┃ {player.PlayerBuildingLevel18} ┃        ┃");
-                Console.SetCursorPosition(10, 26);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 27);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 28);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding18 == false && enemy.EnemyBuilding18 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(10, 23);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 24);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 25);
-                System.Console.Write($"┃ {enemy.EnemyBuildingLevel18} ┃        ┃");
-                Console.SetCursorPosition(10, 26);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 27);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 28);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-
+            DrawTileHeight(10, 16, player.PlayerBuilding18, enemy.EnemyBuilding18, player.PlayerBuildingLevel18, enemy.EnemyBuildingLevel18);
             //19
-            if (player.PlayerBuilding19 == false && enemy.EnemyBuilding19 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(10, 30);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 31);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 32);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 33);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 34);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 35);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding19 == true && enemy.EnemyBuilding19 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(10, 30);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 31);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 32);
-                System.Console.Write($"┃ {player.PlayerBuildingLevel19} ┃        ┃");
-                Console.SetCursorPosition(10, 33);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 34);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 35);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding19 == false && enemy.EnemyBuilding19 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(10, 30);
-                System.Console.Write("┏━━━┳━━━━━━━━┓");
-                Console.SetCursorPosition(10, 31);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 32);
-                System.Console.Write($"┃ {enemy.EnemyBuildingLevel19} ┃        ┃");
-                Console.SetCursorPosition(10, 33);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 34);
-                System.Console.Write("┃   ┃        ┃");
-                Console.SetCursorPosition(10, 35);
-                System.Console.Write("┗━━━┻━━━━━━━━┛");
-            }
-            #endregion
+            DrawTileHeight(10, 9, player.PlayerBuilding19, enemy.EnemyBuilding19, player.PlayerBuildingLevel19, enemy.EnemyBuildingLevel19);
 
             //22
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(55, 19);
-            System.Console.Write("┏━━━━━━━━━━━┓");
-            Console.SetCursorPosition(55, 20);
-            System.Console.Write("┃           ┃");
-            Console.SetCursorPosition(55, 21);
-            System.Console.Write("┃           ┃");
-            Console.SetCursorPosition(55, 22);
-            System.Console.Write("┃           ┃");
-            Console.SetCursorPosition(55, 23);
-            System.Console.Write("┃           ┃");
-            Console.SetCursorPosition(55, 24);
-            System.Console.Write("┃           ┃");
-            Console.SetCursorPosition(55, 25);
-            System.Console.Write("┗━━━━━━━━━━━┛");
+            DrawTileEdge(54, 19);
 
-            #region middleline
-            if (player.PlayerBuilding20 == false && enemy.EnemyBuilding20 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(81, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 35);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding20 == true && enemy.EnemyBuilding20 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(81, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 35);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel20}    ┃");
-                Console.SetCursorPosition(81, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding20 == false && enemy.EnemyBuilding20 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(81, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 35);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel20}    ┃");
-                Console.SetCursorPosition(81, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding21 == false && enemy.EnemyBuilding21 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(68, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 29);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding21 == true && enemy.EnemyBuilding21 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(68, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 29);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel21}    ┃");
-                Console.SetCursorPosition(68, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding21 == false && enemy.EnemyBuilding21 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(68, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 29);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel21}    ┃");
-                Console.SetCursorPosition(68, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding23 == false && enemy.EnemyBuilding23 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(43, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 19);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding23 == true && enemy.EnemyBuilding23 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(43, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 19);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel1}    ┃");
-                Console.SetCursorPosition(43, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding23 == false && enemy.EnemyBuilding23 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(43, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 19);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel1}    ┃");
-                Console.SetCursorPosition(43, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding24 == false && enemy.EnemyBuilding24 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(30, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 13);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding24 == true && enemy.EnemyBuilding24 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(30, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 13);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel24}    ┃");
-                Console.SetCursorPosition(30, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding24 == false && enemy.EnemyBuilding24 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(30, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 13);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel24}    ┃");
-                Console.SetCursorPosition(30, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding25 == false && enemy.EnemyBuilding25 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(81, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 13);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding25 == true && enemy.EnemyBuilding25 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(81, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 13);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel25}    ┃");
-                Console.SetCursorPosition(81, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding25 == false && enemy.EnemyBuilding25 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(81, 8);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(81, 9);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 10);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 11);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(81, 12);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(81, 13);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel25}    ┃");
-                Console.SetCursorPosition(81, 14);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding26 == false && enemy.EnemyBuilding26 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(68, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 19);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding26 == true && enemy.EnemyBuilding26 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(68, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 19);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel26}    ┃");
-                Console.SetCursorPosition(68, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding26 == false && enemy.EnemyBuilding26 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(68, 14);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(68, 15);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 16);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 17);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(68, 18);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(68, 19);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel26}    ┃");
-                Console.SetCursorPosition(68, 20);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding27 == false && enemy.EnemyBuilding27 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(43, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 29);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding27 == true && enemy.EnemyBuilding27 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(43, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 29);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel27}    ┃");
-                Console.SetCursorPosition(43, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding27 == false && enemy.EnemyBuilding27 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(43, 24);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(43, 25);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 26);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 27);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(43, 28);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(43, 29);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel27}    ┃");
-                Console.SetCursorPosition(43, 30);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-
-            if (player.PlayerBuilding28 == false && enemy.EnemyBuilding28 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(30, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 35);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding28 == true && enemy.EnemyBuilding28 == false)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.SetCursorPosition(30, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 35);
-                System.Console.Write($"┃     {player.PlayerBuildingLevel28}    ┃");
-                Console.SetCursorPosition(30, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            else if (player.PlayerBuilding28 == false && enemy.EnemyBuilding28 == true)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(30, 30);
-                System.Console.Write("┏━━━━━━━━━━┓");
-                Console.SetCursorPosition(30, 31);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 32);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 33);
-                System.Console.Write("┃          ┃");
-                Console.SetCursorPosition(30, 34);
-                System.Console.Write("┣━━━━━━━━━━┫");
-                Console.SetCursorPosition(30, 35);
-                System.Console.Write($"┃     {enemy.EnemyBuildingLevel28}    ┃");
-                Console.SetCursorPosition(30, 36);
-                System.Console.Write("┗━━━━━━━━━━┛");
-            }
-            #endregion
-
+            //20
+            DrawPrison(84, 30);
+            Console.SetCursorPosition(88, 35);
+            System.Console.Write("감옥");
+            //21
+            DrawTileWidth(70, 24, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //23
+            DrawTileWidth(42, 14, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //24
+            DrawTileWidth(28, 8, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //25
+            DrawTileWidth(84, 8, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //26
+            DrawTileWidth(70, 14, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //27
+            DrawTileWidth(42, 24, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
+            //28
+            DrawTileWidth(28, 30, player.PlayerBuilding4, enemy.EnemyBuilding4, player.PlayerBuildingLevel4, enemy.EnemyBuildingLevel4);
         }
         #endregion
-
-        public void DrawInterface(Player player, Enemy enemy, int nTurn)
+        #region drawunit
+        public void DrawUnit(int nX, int nY)
         {
-            Console.SetCursorPosition(0, 46);
-            for (int i = 0; i < 123; i++) { System.Console.Write("━"); }
-            Console.SetCursorPosition(5, 50);
-            System.Console.Write($"보유한 돈 : {player.PlayerMoney}/50   보유한 건물 : {player.PlayerBuildingCount}");
-            Console.SetCursorPosition(5, 52);
-            System.Console.Write($"상대가 보유한 돈 : {player.PlayerMoney}/50   상대가 보유한 건물 : {enemy.EnemyBuildingCount}");
-
-            Console.SetCursorPosition(5, 48);
-            System.Console.Write($@"현재 턴 : {nTurn}");
+            Console.SetCursorPosition(nX, nY);
+            System.Console.Write("┏━━┓");
+            Console.SetCursorPosition(nX, nY + 1);
+            System.Console.Write("┃■┃");
+            Console.SetCursorPosition(nX, nY + 2);
+            System.Console.Write("┗━━┛");
         }
-
-        #region drawunitmove
         public void DrawUnitMove(Player player, Enemy enemy)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            switch(player.PlayerOnMap)
+            switch (player.nPlayerOnMap)
             {
                 case 0:
-                    Console.SetCursorPosition(12, 39);
-                    System.Console.Write("┏━━━━┓");
-                    Console.SetCursorPosition(12, 40);
-                    System.Console.Write("┃▒▒▒▒┃");
-                    Console.SetCursorPosition(12, 41);
-                    System.Console.Write("┃▒▒▒▒┃");
-                    Console.SetCursorPosition(12, 42);
-                    System.Console.Write("┗━━━━┛");
+                    DrawUnit(12, 39);
                     break;
+                case 1:
+                    DrawUnit(34, 39);
+                    break;
+                case 2:
+                    DrawUnit(51, 39);
+                    break;
+                case 3:
+                    DrawUnit(68, 39);
+                    break;
+                case 4:
+                    DrawUnit(85, 39);
+                    break;
+                case 5:
+                    DrawUnit(102, 39);
+                    break;
+                case 6:
+                    DrawUnit(102, 31);
+                    break;
+                case 7:
+                    DrawUnit(102, 24);
+                    break;
+                case 8:
+                    DrawUnit(102, 17);
+                    break;
+                case 9:
+                    DrawUnit(102, 10);
+                    break;
+                case 10:
+                    DrawUnit(102, 2);
+                    break;
+                case 11:
+                    DrawUnit(85, 1);
+                    break;
+                case 12:
+                    DrawUnit(68, 1);
+                    break;
+                case 13:
+                    DrawUnit(51, 1);
+                    break;
+                case 14:
+                    DrawUnit(34, 1);
+                    break;
+                case 15:
+                    DrawUnit(15, 2);
+                    break;
+                case 16:
+                    DrawUnit(13, 10);
+                    break;
+                case 17:
+                    DrawUnit(13, 17);
+                    break;
+                case 18:
+                    DrawUnit(13, 24);
+                    break;
+                case 19:
+                    DrawUnit(13, 31);
+                    break;
+                case 20:
+                    DrawUnit(88, 31);
+                    break;
+                case 21:
+                    DrawUnit(74, 25);
+                    break;
+                case 22:
+                    DrawUnit(60, 22);
+                    break;
+                case 23:
+                    DrawUnit(46, 15);
+                    break;
+                case 24:
+                    DrawUnit(32, 9);
+                    break;
+                case 25:
+                    DrawUnit(88, 9);
+                    break;
+                case 26:
+                    DrawUnit(74, 15);
+                    break;
+                case 27:
+                    DrawUnit(46, 25);
+                    break;
+                case 28:
+                    DrawUnit(32, 31);
+                    break;
+
             }
             Console.ForegroundColor = ConsoleColor.Red;
-            switch(enemy.EnemyOnMap)
+            switch (enemy.nEnemyOnMap)
             {
                 case 0:
-                    Console.SetCursorPosition(19, 39);
-                    System.Console.Write("┏━━━━┓");
-                    Console.SetCursorPosition(19, 40);
-                    System.Console.Write("┃▒▒▒▒┃");
-                    Console.SetCursorPosition(19, 41);
-                    System.Console.Write("┃▒▒▒▒┃");
-                    Console.SetCursorPosition(19, 42);
-                    System.Console.Write("┗━━━━┛");
+                    DrawUnit(18, 39);
+                    break;
+                case 1:
+                    DrawUnit(34, 39);
+                    break;
+                case 2:
+                    DrawUnit(51, 39);
+                    break;
+                case 3:
+                    DrawUnit(68, 39);
+                    break;
+                case 4:
+                    DrawUnit(85, 39);
+                    break;
+                case 5:
+                    DrawUnit(102, 39);
+                    break;
+                case 6:
+                    DrawUnit(102, 31);
+                    break;
+                case 7:
+                    DrawUnit(102, 24);
+                    break;
+                case 8:
+                    DrawUnit(102, 17);
+                    break;
+                case 9:
+                    DrawUnit(102, 10);
+                    break;
+                case 10:
+                    DrawUnit(102, 2);
+                    break;
+                case 11:
+                    DrawUnit(85, 1);
+                    break;
+                case 12:
+                    DrawUnit(68, 1);
+                    break;
+                case 13:
+                    DrawUnit(51, 1);
+                    break;
+                case 14:
+                    DrawUnit(34, 1);
+                    break;
+                case 15:
+                    DrawUnit(15, 2);
+                    break;
+                case 16:
+                    DrawUnit(13, 10);
+                    break;
+                case 17:
+                    DrawUnit(13, 17);
+                    break;
+                case 18:
+                    DrawUnit(13, 24);
+                    break;
+                case 19:
+                    DrawUnit(13, 31);
+                    break;
+                case 20:
+                    DrawUnit(88, 31);
+                    break;
+                case 21:
+                    DrawUnit(74, 25);
+                    break;
+                case 22:
+                    DrawUnit(60, 22);
+                    break;
+                case 23:
+                    DrawUnit(46, 15);
+                    break;
+                case 24:
+                    DrawUnit(32, 9);
+                    break;
+                case 25:
+                    DrawUnit(88, 9);
+                    break;
+                case 26:
+                    DrawUnit(74, 15);
+                    break;
+                case 27:
+                    DrawUnit(46, 25);
+                    break;
+                case 28:
+                    DrawUnit(32, 31);
                     break;
             }
         }
         #endregion
+        #region drawyut
+        public void DrawPlayerYut(Player player)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            DrawYutImage(30, 46, player.nYut1);
+            DrawYutImage(35, 46, player.nYut2);
+            DrawYutImage(40, 46, player.nYut3);
+            DrawYutImage(45, 46, player.nYut4);
+            Console.SetCursorPosition(52, 46);
+            System.Console.Write($"{player.chYut}");
+        }
+        public void DrawEnemyYut(Enemy enemy)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            DrawYutImage(30, 46, enemy.nYut1);
+            DrawYutImage(35, 46, enemy.nYut2);
+            DrawYutImage(40, 46, enemy.nYut3);
+            DrawYutImage(45, 46, enemy.nYut4);
+            Console.SetCursorPosition(52, 46);
+            System.Console.Write($"{enemy.chYut}");
+        }
+        public void DrawYutImage(int nX, int nY, int nYut)
+        {
+            if(nYut == 0)
+            {
+                //앞면
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃Ⅹ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃Ⅹ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃Ⅹ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┗━━┛");
+            }
+            if(nYut == 1)
+            {
+                //뒷면
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃  ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃  ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃  ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┗━━┛");
+            }
+        }
+        #endregion
+        public void ResetInterface()
+        {
+            for (int i = 0; i< 20; i++)
+            {
+                Console.SetCursorPosition(0, 46);
+                for (i = 0; i < 123; i++) { System.Console.Write(" "); }
+            }
+        }
     }
+    #endregion
 
     #region player
     class Player
     {
-        public int PlayerOnMap = 0;
-        public int PlayerMoney = 10;
-        public int PlayerBuildingCount = 0;
+        public int nPlayerOnMap = 0;
+        public int nPlayerMoney = 10;
+        public int nYut1 = 0;
+        public int nYut2 = 0;
+        public int nYut3 = 0;
+        public int nYut4 = 0;
+        public int nMove = 0;
+        public string chYut;
+        public bool bReroll;
         #region PlayerBuilding
         public bool PlayerBuilding1 = false;
         public bool PlayerBuilding2 = false;
@@ -1585,6 +696,52 @@ namespace CSharpWork5
         public int PlayerBuildingLevel27 = 0;
         public int PlayerBuildingLevel28 = 0;
         #endregion
+        #region yut
+        public void PlayerThrowYut()
+        {
+            Console.SetCursorPosition(29, 52);
+            Console.ForegroundColor = ConsoleColor.Black;
+            System.Console.Write("아무키나 누르면 윷을 던집니다.");
+            Console.ReadKey(true);
+
+            Random rand = new Random();
+            nYut1 = rand.Next(0, 2);
+            nYut2 = rand.Next(0, 2);
+            nYut3 = rand.Next(0, 2);
+            nYut4 = rand.Next(0, 2);
+            nMove = nYut1 + nYut2 + nYut3 + nYut4;
+            if (nMove == 1)
+            {
+                chYut = "도";
+                bReroll = false;
+            }
+            if (nMove == 2)
+            {
+                chYut = "개";
+                bReroll = false;
+            }
+            if (nMove == 3)
+            {
+                chYut = "걸";
+                bReroll = false;
+            }
+            if (nMove == 4) 
+            { 
+                chYut = "윳";
+                bReroll = true;
+            }
+            if (nMove == 0) 
+            {
+                chYut = "모";
+                bReroll = true;
+            }
+        }
+        #endregion
+        public void PlayerMove()
+        {
+            nPlayerOnMap += nMove;
+            if(nPlayerOnMap >= 20) { nPlayerOnMap -= 20; }
+        }
 
     }
     #endregion
@@ -1592,9 +749,15 @@ namespace CSharpWork5
     #region enemy
     class Enemy
     {
-        public int EnemyOnMap = 0;
-        public int EnemyMoney = 10;
-        public int EnemyBuildingCount = 0;
+        public int nEnemyOnMap = 0;
+        public int nEnemyMoney = 10;
+        public int nYut1 = 0;
+        public int nYut2 = 0;
+        public int nYut3 = 0;
+        public int nYut4 = 0;
+        public int nMove = 0;
+        public bool bReroll;
+        public string chYut;
         #region EnemyBuilding
         public bool EnemyBuilding1 = false;
         public bool EnemyBuilding2 = false;
@@ -1646,7 +809,52 @@ namespace CSharpWork5
         public int EnemyBuildingLevel27 = 0;
         public int EnemyBuildingLevel28 = 0;
         #endregion
+        #region yut
+        public void EnemyThrowYut()
+        {
+            Console.SetCursorPosition(29, 52);
+            Console.ForegroundColor = ConsoleColor.Black;
+            System.Console.Write("아무키나 누르면 윷을 던집니다.");
+            Console.ReadKey();
 
+            Random rand = new Random();
+            nYut1 = rand.Next(0, 2);
+            nYut2 = rand.Next(0, 2);
+            nYut3 = rand.Next(0, 2);
+            nYut4 = rand.Next(0, 2);
+            nMove = nYut1 + nYut2 + nYut3 + nYut4;
+            if (nMove == 1) 
+            { 
+                chYut = "도";
+                bReroll = false;
+            }
+            if (nMove == 2)
+            {
+                chYut = "개";
+                bReroll = false;
+            }
+            if (nMove == 3)
+            {
+                chYut = "걸";
+                bReroll = false;
+            }
+            if (nMove == 4)
+            {
+                chYut = "윳";
+                bReroll = true;
+            }
+            if (nMove == 0)
+            {
+                chYut = "모";
+                bReroll = true;
+            }
+        }
+        #endregion
+        public void EnemyMove()
+        {
+            nEnemyOnMap += nMove;
+            if (nEnemyOnMap >= 20) { nEnemyOnMap -= 20; }
+        }
     }
-    #endregion
 }
+#endregion
