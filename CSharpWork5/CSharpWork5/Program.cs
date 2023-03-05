@@ -5,86 +5,199 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-
 namespace CSharpWork5
 {
     class Program
     {
         static void Main(string[] args)
         {
+            #region point
+            Point[] pointunit = new Point[29];
+            pointunit[0].x = 14;
+            pointunit[0].y = 39;
+            pointunit[1].x = 34;
+            pointunit[1].y = 39;
+            pointunit[2].x = 51;
+            pointunit[2].y = 39;
+            pointunit[3].x = 68;
+            pointunit[3].y = 39;
+            pointunit[4].x = 85;
+            pointunit[4].y = 39;
+            pointunit[5].x = 104;
+            pointunit[5].y = 39;
+            pointunit[6].x = 104;
+            pointunit[6].y = 31;
+            pointunit[7].x = 104;
+            pointunit[7].y = 24;
+            pointunit[8].x = 104;
+            pointunit[8].y = 17;
+            pointunit[9].x = 104;
+            pointunit[9].y = 10;
+            pointunit[10].x = 104;
+            pointunit[10].y = 2;
+            pointunit[11].x = 85;
+            pointunit[11].y = 1;
+            pointunit[12].x = 68;
+            pointunit[12].y = 1;
+            pointunit[13].x = 51;
+            pointunit[13].y = 1;
+            pointunit[14].x = 34;
+            pointunit[14].y = 1;
+            pointunit[15].x = 13;
+            pointunit[15].y = 2;
+            pointunit[16].x = 13;
+            pointunit[16].y = 10;
+            pointunit[17].x = 13;
+            pointunit[17].y = 17;
+            pointunit[18].x = 13;
+            pointunit[18].y = 24;
+            pointunit[19].x = 13;
+            pointunit[19].y = 31;
+            pointunit[20].x = 88;
+            pointunit[20].y = 31;
+            pointunit[21].x = 74;
+            pointunit[21].y = 25;
+            pointunit[22].x = 60;
+            pointunit[22].y = 22;
+            pointunit[23].x = 46;
+            pointunit[23].y = 15;
+            pointunit[24].x = 32;
+            pointunit[24].y = 9;
+            pointunit[25].x = 88;
+            pointunit[25].y = 9;
+            pointunit[26].x = 74;
+            pointunit[26].y = 15;
+            pointunit[27].x = 46;
+            pointunit[27].y = 25;
+            pointunit[28].x = 32;
+            pointunit[28].y = 31;
+            Point[] pointmap = new Point[29];
+            pointmap[0].x = 10;
+            pointmap[0].y = 37;
+            pointmap[1].x = 30;
+            pointmap[1].y = 38;
+            pointmap[2].x = 47;
+            pointmap[2].y = 38;
+            pointmap[3].x = 64;
+            pointmap[3].y = 38;
+            pointmap[4].x = 81;
+            pointmap[4].y = 38;
+            pointmap[5].x = 98;
+            pointmap[5].y = 37;
+            pointmap[6].x = 102;
+            pointmap[6].y = 30;
+            pointmap[7].x = 102;
+            pointmap[7].y = 23;
+            pointmap[8].x = 102;
+            pointmap[8].y = 16;
+            pointmap[9].x = 102;
+            pointmap[9].y = 9;
+            pointmap[10].x = 98;
+            pointmap[10].y = 0;
+            pointmap[11].x = 81;
+            pointmap[11].y = 0;
+            pointmap[12].x = 64;
+            pointmap[12].y = 0;
+            pointmap[13].x = 47;
+            pointmap[13].y = 0;
+            pointmap[14].x = 30;
+            pointmap[14].y = 0;
+            pointmap[15].x = 10;
+            pointmap[15].y = 0;
+            pointmap[16].x = 10;
+            pointmap[16].y = 9;
+            pointmap[17].x = 10;
+            pointmap[17].y = 16;
+            pointmap[18].x = 10;
+            pointmap[18].y = 23;
+            pointmap[19].x = 10;
+            pointmap[19].y = 30;
+            pointmap[20].x = 83;
+            pointmap[20].y = 30;
+            pointmap[21].x = 70;
+            pointmap[21].y = 24;
+            pointmap[22].x = 54;
+            pointmap[22].y = 19;
+            pointmap[23].x = 42;
+            pointmap[23].y = 14;
+            pointmap[24].x = 28;
+            pointmap[24].y = 8;
+            pointmap[25].x = 84;
+            pointmap[25].y = 8;
+            pointmap[26].x = 70;
+            pointmap[26].y = 14;
+            pointmap[27].x = 42;
+            pointmap[27].y = 24;
+            pointmap[28].x = 28;
+            pointmap[28].y = 30;
+            #endregion
             #region main
             Draw draw = new Draw();
             draw.DrawIntroduceScreen();
 
-            //유저 수 선택
-
             Player[] player = new Player[2];
-            Player Commender = new Player();
+            for(int i = 0; i < 2; i++) { player[i] = new Player(); }
             SetColor(player, 2);
-
+            draw.DrawSetUserName(player, 2);
             int nTurn = 1; //현재 턴
-            int nUserCount = 2;// 유저 수
-            string chName = "";
-            int nTurnCount = 0;
-
-
+            string chName = player[0].chPlayerName;
+            int nTurnCount = 0; //차례
             while (true)
             {
                 //배경 그리기
-                draw.DrawBackground(nTurn, chName, player);
-                draw.DrawMap(player[0]);
-                for(int i = 0; i < nUserCount; i++)
+                draw.DrawBackground(nTurn, chName, player, 2);
+                draw.DrawMap(pointmap, player);
+                for (int i = 0; i < 2; i++)
                 {
-                    draw.DrawUnitMove(player[i], player[i].PlayerColor);
+                    draw.DrawUnitMove(player[i], pointunit);
                 }
                 //윳 던지기 
                 while (true)
                 {
-                    for(int i = 0; i < nUserCount; i++)
-                    {
-                        player[i].PlayerThrowYut();
-                        draw.DrawPlayerYut(player[i], player[i].PlayerColor);
-                        player[i].PlayerMove();
-                        player[i].PlayerChoiceFork(draw);
-                    }
+                    player[nTurnCount].PlayerThrowYut(draw);
+                    draw.DrawPlayerYut(player[nTurnCount]);
+                    player[nTurnCount].PlayerMove(); 
 
-                    //턴 끝내기 if (  ) { break; }
+                    draw.DrawUnitMove(player[nTurnCount], pointunit);
+                    player[nTurnCount].PlayerChoiceFork(draw);
+                    draw.DrawBackground(nTurn, chName, player, 2);
+                    player[nTurnCount].PlayerChoiceEvent(draw);
+                    draw.DrawBackground(nTurn, chName, player, 2);
+                    if (player[nTurnCount].bPlayerReroll == false) break;//턴 끝내기
                 }
                 //턴 넘기기 
-                    chName = player[nTurnCount].chPlayerName;
-                    nTurnCount++;
-                if(nTurnCount == nUserCount)
+                chName = player[nTurnCount].chPlayerName;
+                nTurnCount++;
+                if (nTurnCount == 2)
                 {
                     nTurnCount = 0;
                     nTurn++;
                 }
+                if(player[0].nPlayerMoney >=50 || player[1].nPlayerMoney <=0)
+                {
+                    Console.Clear();
+                    Console.SetCursorPosition(55, 30);
+                    System.Console.Write($"{player[0].chPlayerName} 승리");
+                    break;
+                }
+                if (player[0].nPlayerMoney <= 0 || player[1].nPlayerMoney >= 50)
+                {
+                    Console.Clear();
+                    Console.SetCursorPosition(55, 30);
+                    System.Console.Write($"{player[1].chPlayerName} 승리");
+                    break;
+                }
             }
+            
             #endregion
         }
         #region method
-        static void SelectNumberOfUser()
-        {
-
-        }
         static void SetColor(Player[] player, int nNumberofUser)
         {
             if (nNumberofUser == 2)
             {
                 player[0].PlayerColor = ConsoleColor.Blue;
                 player[1].PlayerColor = ConsoleColor.Red;
-            }
-            if (nNumberofUser == 3)
-            {
-                player[0].PlayerColor = ConsoleColor.Blue;
-                player[1].PlayerColor = ConsoleColor.Red;
-                player[2].PlayerColor = ConsoleColor.Green;
-            }
-            if (nNumberofUser == 4)
-            {
-                player[0].PlayerColor = ConsoleColor.Blue;
-                player[1].PlayerColor = ConsoleColor.Red;
-                player[2].PlayerColor = ConsoleColor.Green;
-                player[3].PlayerColor = ConsoleColor.Yellow;
             }
         }
         #endregion
@@ -93,8 +206,6 @@ namespace CSharpWork5
     #region draw
     class Draw
     {
-        public int nNumberOfUser = 0;
-
         #region drawtile
         public void DrawTileEdge(int nX, int nY)
         {
@@ -116,11 +227,11 @@ namespace CSharpWork5
             Console.SetCursorPosition(nX, nY + 7);
             System.Console.Write("┗━━━━━━━━━━━━━━┛");
         }
-        public void DrawTileWidth(int nX, int nY, bool PlayerBuilding, int PlayerBuildingLevel, ConsoleColor color)
+        public void DrawTile(int nX, int nY, Player[] player, int nOwner, int nNumber)
         {
-            if (PlayerBuilding == true)
+            if (nOwner == 0)
             {
-                Console.ForegroundColor = color;
+                Console.ForegroundColor = ConsoleColor.Black;
                 Console.SetCursorPosition(nX, nY);
                 System.Console.Write("┏━━━━━━━━━━┓");
                 Console.SetCursorPosition(nX, nY + 1);
@@ -132,31 +243,31 @@ namespace CSharpWork5
                 Console.SetCursorPosition(nX, nY + 4);
                 System.Console.Write("┣━━━━━━━━━━┫");
                 Console.SetCursorPosition(nX, nY + 5);
-                System.Console.Write($"┃     {PlayerBuildingLevel}    ┃");
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 6);
+                System.Console.Write("┗━━━━━━━━━━┛");
+
+            }
+            else
+            {
+                Console.ForegroundColor = player[nOwner].PlayerColor;
+                Console.SetCursorPosition(nX, nY);
+                System.Console.Write("┏━━━━━━━━━━┓");
+                Console.SetCursorPosition(nX, nY + 1);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 2);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 3);
+                System.Console.Write("┃          ┃");
+                Console.SetCursorPosition(nX, nY + 4);
+                System.Console.Write("┣━━━━━━━━━━┫");
+                Console.SetCursorPosition(nX, nY + 5);
+                System.Console.Write($"┃     {player[nOwner].bPlayerBuilding[nNumber]}    ┃");
                 Console.SetCursorPosition(nX, nY + 6);
                 System.Console.Write("┗━━━━━━━━━━┛");
             }
         }
-        public void DrawTileHeight(int nX, int nY, bool PlayerBuilding, int PlayerBuildingLevel, ConsoleColor color)
-        {
-            if (PlayerBuilding == true)
-            {
-                Console.ForegroundColor = color;
-                Console.SetCursorPosition(nX, nY);
-                System.Console.Write("┏━━━━━━━━┳━━━┓");
-                Console.SetCursorPosition(nX, nY + 1);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(nX, nY + 2);
-                System.Console.Write($"┃        ┃ {PlayerBuildingLevel} ┃");
-                Console.SetCursorPosition(nX, nY + 3);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(nX, nY + 4);
-                System.Console.Write("┃        ┃   ┃");
-                Console.SetCursorPosition(nX, nY + 5);
-                System.Console.Write("┗━━━━━━━━┻━━━┛");
-            }
-        }
-        public void DrawPrison(int nX, int nY)
+        public void DrawTileText(int nX, int nY, string chText)
         {
             Console.ForegroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(nX, nY);
@@ -174,74 +285,52 @@ namespace CSharpWork5
             Console.SetCursorPosition(nX, nY + 6);
             System.Console.Write("┗━━━━━━━━━━┛");
             Console.SetCursorPosition(nX+5, nY+5);
-            System.Console.Write("감옥");
+            System.Console.Write($"{chText}");
+        }
+        public void DrawHeightText(int nX, int nY, string chText)
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(nX, nY);
+            System.Console.Write("┏━━━━━━━┳━━━┓");
+            Console.SetCursorPosition(nX, nY + 1);
+            System.Console.Write("┃       ┃   ┃");
+            Console.SetCursorPosition(nX, nY + 2);
+            System.Console.Write("┃       ┃   ┃");
+            Console.SetCursorPosition(nX, nY + 3);
+            System.Console.Write("┃       ┃   ┃");
+            Console.SetCursorPosition(nX, nY + 4);
+            System.Console.Write("┃       ┃   ┃");
+            Console.SetCursorPosition(nX, nY + 5);
+            System.Console.Write("┗━━━━━━━┻━━━┛");
+            Console.SetCursorPosition(nX + 10, nY + 1);
+            System.Console.Write($"{chText}");
         }
 
         #endregion
         #region drawmap
-        public void DrawMap(Player player)
+        public void DrawMap(Point[] point, Player[]player)
         {
-            //0(start)
-            DrawTileEdge(10, 37);
+            for (int i = 0; i < 29; i++)
+            {
+                if(i == 0 || i == 5 || i == 10 || i == 15 || i == 22)
+                {
+                    DrawTileEdge(point[i].x, point[i].y);
+                }
+                else if (i == 12 || i == 20)
+                {
+                    DrawTileText(point[i].x, point[i].y, "감옥");
+                }
+                else if( i == 4 || i == 9)
+                {
+                    DrawTileText(point[i].x, point[i].y, "이벤트");
+                }
+                else
+                {
+                    DrawTile(point[i].x, point[i].y, player, ReturnBuildingOwner(player, i), i);
+                }
+            }
             Console.SetCursorPosition(17, 42);
             System.Console.Write("출발");
-
-            //1
-            DrawTileWidth(30, 38, player.bPlayerBuilding1, player.nPlayerBuildingLevel1, player.PlayerColor);
-            //2
-            DrawTileWidth(47, 38, player.bPlayerBuilding2, player.nPlayerBuildingLevel2, player.PlayerColor);
-            //3
-            DrawTileWidth(64, 38, player.bPlayerBuilding3, player.nPlayerBuildingLevel3, player.PlayerColor);
-            //4
-            DrawTileWidth(81, 38, player.bPlayerBuilding4, player.nPlayerBuildingLevel4, player.PlayerColor);
-            //5
-            DrawTileEdge(98, 37);
-            //6
-            DrawTileHeight(100, 30, player.bPlayerBuilding6, player.nPlayerBuildingLevel6, player.PlayerColor);
-            //7
-            DrawTileHeight(100, 23, player.bPlayerBuilding7, player.nPlayerBuildingLevel7, player.PlayerColor);
-            //8
-            DrawTileHeight(100, 16, player.bPlayerBuilding8, player.nPlayerBuildingLevel8, player.PlayerColor);
-            //9
-            DrawTileHeight(100, 9, player.bPlayerBuilding9, player.nPlayerBuildingLevel9, player.PlayerColor);
-            //10
-            DrawTileEdge(98, 0);
-            //11
-            DrawTileWidth(30, 0, player.bPlayerBuilding11, player.nPlayerBuildingLevel11, player.PlayerColor);
-            //12 감옥
-            DrawPrison(47, 0);
-            //13
-            DrawTileWidth(64, 0, player.bPlayerBuilding13, player.nPlayerBuildingLevel13, player.PlayerColor);
-            //14
-            DrawTileWidth(81, 0, player.bPlayerBuilding14, player.nPlayerBuildingLevel14, player.PlayerColor);
-            //15
-            DrawTileEdge(10, 0);
-            //16
-            DrawTileHeight(10, 30, player.bPlayerBuilding16, player.nPlayerBuildingLevel16, player.PlayerColor);
-            //17
-            DrawTileHeight(10, 23, player.bPlayerBuilding17, player.nPlayerBuildingLevel17, player.PlayerColor);
-            //18
-            DrawTileHeight(10, 16, player.bPlayerBuilding18, player.nPlayerBuildingLevel18, player.PlayerColor);
-            //19
-            DrawTileHeight(10, 9, player.bPlayerBuilding19, player.nPlayerBuildingLevel19, player.PlayerColor);
-            //22
-            DrawTileEdge(54, 19);
-            //20 감옥
-            DrawPrison(84, 30);
-            //21
-            DrawTileWidth(70, 24, player.bPlayerBuilding21, player.nPlayerBuildingLevel21, player.PlayerColor);
-            //23
-            DrawTileWidth(42, 14, player.bPlayerBuilding23, player.nPlayerBuildingLevel23, player.PlayerColor);
-            //24
-            DrawTileWidth(28, 8, player.bPlayerBuilding24, player.nPlayerBuildingLevel24, player.PlayerColor);
-            //25
-            DrawTileWidth(84, 8, player.bPlayerBuilding25, player.nPlayerBuildingLevel25, player.PlayerColor);
-            //26
-            DrawTileWidth(70, 14, player.bPlayerBuilding26, player.nPlayerBuildingLevel26, player.PlayerColor);
-            //27
-            DrawTileWidth(42, 24, player.bPlayerBuilding27, player.nPlayerBuildingLevel27, player.PlayerColor);
-            //28
-            DrawTileWidth(28, 30, player.bPlayerBuilding28, player.nPlayerBuildingLevel28, player.PlayerColor);
         }
         #endregion
         #region drawunit
@@ -254,111 +343,31 @@ namespace CSharpWork5
             Console.SetCursorPosition(nX, nY + 2);
             System.Console.Write("┗━━┛");
         }
-        public void DrawUnitMove(Player player, ConsoleColor color)
+        public void ClearUnit(int nX, int nY)
         {
-            Console.ForegroundColor = color;
-            switch (player.nPlayerOnMap)
-            {
-                case 0:
-                    DrawUnit(12, 39);
-                    break;
-                case 1:
-                    DrawUnit(34, 39);
-                    break;
-                case 2:
-                    DrawUnit(51, 39);
-                    break;
-                case 3:
-                    DrawUnit(68, 39);
-                    break;
-                case 4:
-                    DrawUnit(85, 39);
-                    break;
-                case 5:
-                    DrawUnit(102, 39);
-                    break;
-                case 6:
-                    DrawUnit(102, 31);
-                    break;
-                case 7:
-                    DrawUnit(102, 24);
-                    break;
-                case 8:
-                    DrawUnit(102, 17);
-                    break;
-                case 9:
-                    DrawUnit(102, 10);
-                    break;
-                case 10:
-                    DrawUnit(102, 2);
-                    break;
-                case 11:
-                    DrawUnit(85, 1);
-                    break;
-                case 12:
-                    DrawUnit(68, 1);
-                    break;
-                case 13:
-                    DrawUnit(51, 1);
-                    break;
-                case 14:
-                    DrawUnit(34, 1);
-                    break;
-                case 15:
-                    DrawUnit(15, 2);
-                    break;
-                case 16:
-                    DrawUnit(13, 10);
-                    break;
-                case 17:
-                    DrawUnit(13, 17);
-                    break;
-                case 18:
-                    DrawUnit(13, 24);
-                    break;
-                case 19:
-                    DrawUnit(13, 31);
-                    break;
-                case 20:
-                    DrawUnit(88, 31);
-                    break;
-                case 21:
-                    DrawUnit(74, 25);
-                    break;
-                case 22:
-                    DrawUnit(60, 22);
-                    break;
-                case 23:
-                    DrawUnit(46, 15);
-                    break;
-                case 24:
-                    DrawUnit(32, 9);
-                    break;
-                case 25:
-                    DrawUnit(88, 9);
-                    break;
-                case 26:
-                    DrawUnit(74, 15);
-                    break;
-                case 27:
-                    DrawUnit(46, 25);
-                    break;
-                case 28:
-                    DrawUnit(32, 31);
-                    break;
-
-            }
+            Console.SetCursorPosition(nX, nY);
+            System.Console.Write("    ");
+            Console.SetCursorPosition(nX, nY + 1);
+            System.Console.Write("    ");
+            Console.SetCursorPosition(nX, nY + 2);
+            System.Console.Write("    ");
+        }
+        public void DrawUnitMove(Player player, Point[] point)
+        {
+            Console.ForegroundColor = player.PlayerColor;
+            DrawUnit(point[player.nPlayerOnMap].x, point[player.nPlayerOnMap].y);
+            ClearUnit(point[player.nPlayerOnMapBefore].x, point[player.nPlayerOnMapBefore].y);
         }
         #endregion
         #region drawyut
-        public void DrawPlayerYut(Player player, ConsoleColor color)
+        public void DrawPlayerYut(Player player)
         {
-            Console.ForegroundColor = color;
-            DrawYutImage(30, 46, player.nYut1);
-            DrawYutImage(35, 46, player.nYut2);
-            DrawYutImage(40, 46, player.nYut3);
-            DrawYutImage(45, 46, player.nYut4);
-            Console.SetCursorPosition(52, 46);
+            Console.ForegroundColor = player.PlayerColor;
+            DrawYutImage(40, 46, player.nYut1);
+            DrawYutImage(45, 46, player.nYut2);
+            DrawYutImage(50, 46, player.nYut3);
+            DrawYutImage(55, 46, player.nYut4);
+            Console.SetCursorPosition(62, 46);
             System.Console.Write($"{player.chYut}");
         }
         public void DrawYutImage(int nX, int nY, int nYut)
@@ -393,32 +402,63 @@ namespace CSharpWork5
             }
         }
         #endregion
-        public void DrawBackground(int nTurn, string chTurn, Player[] player)
+        #region etc
+        public int ReturnBuildingOwner(Player[] player, int nNumber)
+        {
+            for(int i = 0; i < 2; i++)
+            {
+                if(player[i].bPlayerBuilding[nNumber] == true)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+        public void DrawSetUserName(Player[] player, int nNumberOfUser)
+        {
+            bool bError = false;
+            for(int i = 0; i <nNumberOfUser; i++)
+            {
+                while(true)
+                {
+                    Console.SetCursorPosition(40, 49);
+                    System.Console.Write($"플레이어 {i+1}의 닉네임을 입력해주세요.(1자 이상 8자 이하)");
+                    if(bError == true) { System.Console.Write(" 닉네임을 다시 입력해주세요."); }
+                    Console.SetCursorPosition(40, 51);
+                    player[i].chPlayerName = System.Console.ReadLine();
+                    ClearInterface();
+                    if(player[i].chPlayerName.Length >= 1 && player[i].chPlayerName.Length <= 8) { break; }
+                    else { bError = true; }
+                }
+            }
+
+        }
+        public void DrawBackground(int nTurn, string chTurn, Player[] player, int nNumberOfUser)
         {
             Console.SetCursorPosition(0, 45);
             Console.ForegroundColor = ConsoleColor.Black;
             for (int i = 0; i < 123; i++) { System.Console.Write("━"); }
-            Console.SetCursorPosition(5, 46);
+            Console.SetCursorPosition(0, 46);
             System.Console.Write($"현재 턴 : {nTurn}");
-            Console.SetCursorPosition(5, 48);
+            Console.SetCursorPosition(0, 48);
             System.Console.Write($"{chTurn}의 턴");
             for(int i = 0; i < nNumberOfUser; i++)
             {
-                Console.SetCursorPosition(5, 50 + i * 2);
-                System.Console.Write($"가 보유한 돈 : {player[i].nPlayerMoney}");
+                Console.SetCursorPosition(0, 50 + i * 2);
+                System.Console.Write($"{player[i].chPlayerName}가 보유한 돈 : {player[i].nPlayerMoney}");
             }
         }
         public void DrawIntroduceScreen()
         {
             Console.SetWindowSize(124, 60);
             Console.CursorVisible = false;
-            Console.Title = "부루마블 + 윳놀이";
+            Console.Title = "윳마블";
             Console.BackgroundColor = ConsoleColor.White;
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Black;
 
             Console.SetCursorPosition(50, 4);
-            System.Console.Write("부루마블 + 윳놀이");
+            System.Console.Write("윳마블");
             Console.SetCursorPosition(10, 7);
             System.Console.Write("맵 설명");
             Console.SetCursorPosition(10, 9);
@@ -426,7 +466,7 @@ namespace CSharpWork5
             Console.SetCursorPosition(10, 10);
             System.Console.Write("2인 플레이가 가능하고 플레이어 1은 파랑, 플레이어 2는 빨강으로 표시된다.");
             Console.SetCursorPosition(10, 11);
-            System.Console.Write("라인의 각 중간에는 이벤트 칸이 있고 감옥은 한 곳이 있다.");
+            System.Console.Write("라인 곳곳에는 이벤트 칸이 있고 감옥은 두 곳이 있다.");
             Console.SetCursorPosition(10, 12);
             System.Console.Write("특별하지 않은 칸은 건물을 지어 통행료를 받을 수 있고 건물 인수와 랜드마크 건설은 없다.");
             Console.SetCursorPosition(10, 13);
@@ -458,7 +498,7 @@ namespace CSharpWork5
         {
             for (int i = 0; i< 8; i++)
             {
-                Console.SetCursorPosition(40, 46+i);
+                Console.SetCursorPosition(0, 46+i);
                 for (int k = 0; k < 31; k++) { System.Console.Write("    "); }
             }
         }
@@ -481,16 +521,21 @@ namespace CSharpWork5
         {
             ConsoleKeyInfo cki;
 
-            int nReturn = 1;
+            int nReturn = 0;
 
             ClearInterface();
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(40, 47);
+            Console.SetCursorPosition(50, 47);
             System.Console.Write($"{chQuestion}");
-            Console.SetCursorPosition(40, 49);
+            Console.SetCursorPosition(50, 49);
             System.Console.Write($"1. {Answer1}");
-            Console.SetCursorPosition(40, 51);
+            Console.SetCursorPosition(50, 51);
             System.Console.Write($"2. {Answer2}");
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(46, 49);
+            System.Console.Write("=>");
+            Console.SetCursorPosition(46, 51);
+            System.Console.Write("  ");
 
             while (true)
             {
@@ -498,29 +543,31 @@ namespace CSharpWork5
 
                 switch (cki.Key)
                 {
-                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.UpArrow:
                         Console.ForegroundColor = ConsoleColor.Black;
-                        Console.SetCursorPosition(36, 49);
-                        System.Console.Write("⇛");
-                        Console.SetCursorPosition(36, 51);
-                        System.Console.Write(" ");
+                        Console.SetCursorPosition(46, 49);
+                        System.Console.Write("=>");
+                        Console.SetCursorPosition(46, 51);
+                        System.Console.Write("  ");
                         nReturn--;
-                        if (nReturn < 1) nReturn = 2;
+                        if (nReturn < 0) nReturn = 0;
                         break;
-                    case ConsoleKey.RightArrow:
+                    case ConsoleKey.DownArrow:
                         Console.ForegroundColor = ConsoleColor.Black;
-                        Console.SetCursorPosition(36, 51);
-                        System.Console.Write("⇛");
-                        Console.SetCursorPosition(36, 49);
-                        System.Console.Write(" ");
+                        Console.SetCursorPosition(46, 51);
+                        System.Console.Write("=>");
+                        Console.SetCursorPosition(46, 49);
+                        System.Console.Write("  ");
                         nReturn++;
-                        if (nReturn > 2) nReturn = 1;
+                        if (nReturn > 1) nReturn = 1;
                         break;
                     case ConsoleKey.Spacebar:
+                        ClearInterface();
                         return nReturn;
                 }
             }
         }
+        #endregion
     }
     #endregion
 
@@ -528,10 +575,12 @@ namespace CSharpWork5
     class Player
     {
         public string chPlayerName;
-        public ConsoleColor PlayerColor = ConsoleColor.Black;
+        public ConsoleColor PlayerColor;
 
         public int nPlayerOnMap = 0;
+        public int nPlayerOnMapBefore = 0;
         public int nPlayerMoney = 10;
+        public bool bPlayerPrison = false;
         public bool bPlayerTurn = false;
         public int nYut1 = 0;
         public int nYut2 = 0;
@@ -545,64 +594,17 @@ namespace CSharpWork5
         public bool bPlayerFork3 = false;
         public bool bPlayerReroll = false;
 
-        #region PlayerBuilding
-        public bool bPlayerBuilding1 = false;
-        public bool bPlayerBuilding2 = false;
-        public bool bPlayerBuilding3 = false;
-        public bool bPlayerBuilding4 = false;
-        public bool bPlayerBuilding6 = false;
-        public bool bPlayerBuilding7 = false;
-        public bool bPlayerBuilding8 = false;
-        public bool bPlayerBuilding9 = false;
-        public bool bPlayerBuilding11 = false;
-        public bool bPlayerBuilding12 = false;
-        public bool bPlayerBuilding13 = false;
-        public bool bPlayerBuilding14 = false;
-        public bool bPlayerBuilding16 = false;
-        public bool bPlayerBuilding17 = false;
-        public bool bPlayerBuilding18 = false;
-        public bool bPlayerBuilding19 = false;
-        public bool bPlayerBuilding20 = false;
-        public bool bPlayerBuilding21 = false;
-        public bool bPlayerBuilding23 = false;
-        public bool bPlayerBuilding24 = false;
-        public bool bPlayerBuilding25 = false;
-        public bool bPlayerBuilding26 = false;
-        public bool bPlayerBuilding27 = false;
-        public bool bPlayerBuilding28 = false;
+        public bool[] bPlayerBuilding = new bool[29];
+        public bool[] bPlayerBuildingLevel = new bool[29];
 
-        public int nPlayerBuildingLevel1 = 0;
-        public int nPlayerBuildingLevel2 = 0;
-        public int nPlayerBuildingLevel3 = 0;
-        public int nPlayerBuildingLevel4 = 0;
-        public int nPlayerBuildingLevel6 = 0;
-        public int nPlayerBuildingLevel7 = 0;
-        public int nPlayerBuildingLevel8 = 0;
-        public int nPlayerBuildingLevel9 = 0;
-        public int nPlayerBuildingLevel11 = 0;
-        public int nPlayerBuildingLevel12 = 0;
-        public int nPlayerBuildingLevel13 = 0;
-        public int nPlayerBuildingLevel14 = 0;
-        public int nPlayerBuildingLevel16 = 0;
-        public int nPlayerBuildingLevel17 = 0;
-        public int nPlayerBuildingLevel18 = 0;
-        public int nPlayerBuildingLevel19 = 0;
-        public int nPlayerBuildingLevel20 = 0;
-        public int nPlayerBuildingLevel21 = 0;
-        public int nPlayerBuildingLevel23 = 0;
-        public int nPlayerBuildingLevel24 = 0;
-        public int nPlayerBuildingLevel25 = 0;
-        public int nPlayerBuildingLevel26 = 0;
-        public int nPlayerBuildingLevel27 = 0;
-        public int nPlayerBuildingLevel28 = 0;
-        #endregion
         #region yut
-        public void PlayerThrowYut()
+        public void PlayerThrowYut(Draw draw)
         {
             bPlayerReroll = false;
-            Console.SetCursorPosition(29, 52);
+            Console.SetCursorPosition(39, 52);
             Console.ForegroundColor = ConsoleColor.Black;
             System.Console.Write("스페이스바로 윷 던지기");
+            draw.NextScreen();
 
             Random rand = new Random();
             nYut1 = rand.Next(0, 2);
@@ -615,90 +617,182 @@ namespace CSharpWork5
                 chYut = "도";
                 bPlayerReroll = false;
             }
-            if (nMove == 2)
+            else if (nMove == 2)
             {
                 chYut = "개";
                 bPlayerReroll = false;
             }
-            if (nMove == 3)
+            else if (nMove == 3)
             {
                 chYut = "걸";
                 bPlayerReroll = false;
             }
-            if (nMove == 4) 
+            else if (nMove == 4) 
             { 
                 chYut = "윳";
                 bPlayerReroll = true;
             }
-            if (nMove == 0) 
+            else if (nMove == 0) 
             {
                 chYut = "모";
                 bPlayerReroll = true;
+                nMove = 5;
             }
         }
         #endregion
+        #region playermove
         public void PlayerMove()
         {
-            if( bPlayerFork0 == true)
-            {
-                nPlayerOnMap += nMove;
-                if(nPlayerOnMap >= 20) { nPlayerOnMap -= 20; }
-            }
-            if (bPlayerFork1 == true)
-            {
+                if(bPlayerFork0 == true)
+                {
+                    nPlayerOnMapBefore = nPlayerOnMap;
+                    nPlayerOnMap += nMove;
+                if (nPlayerOnMap >= 20)
+                {
+                    nPlayerMoney += 10;
+                    nPlayerOnMap -= 20;
 
-            }
-            if (bPlayerFork2 == true)
-            {
+                }
 
-            }
-            if (bPlayerFork3 == true)
-            {
+                }
+                else if (bPlayerFork1 == true)
+                {
 
-            }
-
+                    nPlayerOnMapBefore = nPlayerOnMap;
+                    if (nPlayerOnMap == 5 ) { nPlayerOnMap += 14; }
+                    nPlayerOnMap += nMove;
+                    if (nPlayerOnMap >= 25)
+                    {
+                        bPlayerFork0 = true;
+                        bPlayerFork1 = false;
+                        nPlayerOnMap -= 10;
+                    }
+                }
+                else if (bPlayerFork2 == true)
+                {
+                    nPlayerOnMapBefore = nPlayerOnMap;
+                    if (nPlayerOnMap == 10) { nPlayerOnMap += 14; }
+                    nPlayerOnMap += nMove;
+                    if (nPlayerOnMap == 27)
+                    {
+                        nPlayerOnMap = 22;
+                        bPlayerFork2 = false;
+                        bPlayerFork3 = true;
+                    }
+                    else if (nPlayerOnMap == 28)
+                    {
+                        nPlayerOnMap = 27;
+                        bPlayerFork2 = false;
+                        bPlayerFork3 = true;
+                    }
+                    else if (nPlayerOnMap == 29)
+                    {
+                        nPlayerOnMap = 28;
+                        bPlayerFork2 = false;
+                        bPlayerFork3 = true;
+                    }
+                    else if (nPlayerOnMap >= 30)
+                    {
+                        nPlayerOnMap -= 30;
+                        bPlayerFork2 = false;
+                        bPlayerFork0 = true;
+                        nPlayerMoney += 10;// 골
+                    }
+                }
+                else if (bPlayerFork3 == true)
+                {
+                    nPlayerOnMapBefore = nPlayerOnMap;
+                    nPlayerOnMap += nMove;
+                    if (nPlayerOnMap == 28)
+                    {
+                        nPlayerOnMap = 27;
+                        bPlayerFork2 = false;
+                        bPlayerFork3 = true;
+                    }
+                    else if (nPlayerOnMap == 29)
+                    {
+                        nPlayerOnMap = 28;
+                        bPlayerFork2 = false;
+                        bPlayerFork3 = true;
+                    }
+                    else if (nPlayerOnMap >= 30)
+                    {
+                        nPlayerOnMap -= 30;
+                        bPlayerFork2 = false;
+                        bPlayerFork0 = true;
+                        nPlayerMoney += 10;// 골
+                    }
+                }
+            
         }
+        #endregion
+        #region event
         public void PlayerChoiceFork(Draw draw)
         {
             if (nPlayerOnMap == 5) 
             { 
-                if(draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↖", "↑") == 1) 
+                if(draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↖", "↑") == 0) 
                 {
                     bPlayerFork0 = false;
                     bPlayerFork1 = true;
-                    bPlayerFork2 = false;
-                    bPlayerFork3 = false;
                 }
             }
             else if (nPlayerOnMap == 10)
             {
-                if (draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↙", "←") == 1)
+                if (draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↙", "←") == 0)
                 {
                     bPlayerFork0 = false;
-                    bPlayerFork1 = false;
                     bPlayerFork2 = true;
-                    bPlayerFork3 = false;
                 }
             }
-            else if (nPlayerOnMap == 22)
+            else if (nPlayerOnMap == 22 && bPlayerFork1 == true)
             {
-                if (draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↙", "↖") == 1)
+                if (draw.ReturnPlayerChoice2("갈림길을 선택해 주세요.", "↙", "↖") == 0)
                 {
-                    bPlayerFork0 = false;
                     bPlayerFork1 = false;
-                    bPlayerFork2 = false;
                     bPlayerFork3 = true;
                 }
             }
         }
         public void PlayerChoiceEvent(Draw draw)
         {
-            if (draw.ReturnPlayerChoice2("이벤트를 발동하시겠습니까?", "예", "아니요") == 1)
+            if(nPlayerOnMap == 4 || nPlayerOnMap == 9 || nPlayerOnMap == 28)
             {
+                if (draw.ReturnPlayerChoice2("이벤트를 발동하시겠습니까?", "예", "아니요") == 0)
+                {
                 Random rand = new Random();
                 int nEvent = rand.Next(0, 7);
+                    switch (nEvent)
+                    {
+                        case 0:
+                            nPlayerMoney += 5;
+                            Console.SetCursorPosition()
+                            break;
+                    }
+                }
             }
+
+        }
+        public void PlayerGoPrison()
+        {
+
+        }
+        public void PlayerBuyBuilding()
+        {
+
+        }
+        #endregion
+    }
+    
+    #endregion
+    struct Point
+    {
+        public int x, y;
+
+        public Point(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
         }
     }
-    #endregion
 }
