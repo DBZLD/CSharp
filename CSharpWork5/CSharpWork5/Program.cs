@@ -595,7 +595,7 @@ namespace CSharpWork5
         public bool bPlayerReroll = false;
 
         public bool[] bPlayerBuilding = new bool[29];
-        public bool[] bPlayerBuildingLevel = new bool[29];
+        public int[] nPlayerBuildingLevel = new int[29];
 
         #region yut
         public void PlayerThrowYut(Draw draw)
@@ -647,12 +647,11 @@ namespace CSharpWork5
                 {
                     nPlayerOnMapBefore = nPlayerOnMap;
                     nPlayerOnMap += nMove;
-                if (nPlayerOnMap >= 20)
-                {
-                    nPlayerMoney += 10;
-                    nPlayerOnMap -= 20;
-
-                }
+                    if (nPlayerOnMap >= 20)
+                    {
+                        nPlayerMoney += 10;
+                        nPlayerOnMap -= 20;
+                    }
 
                 }
                 else if (bPlayerFork1 == true)
@@ -766,7 +765,7 @@ namespace CSharpWork5
                     {
                         case 0:
                             nPlayerMoney += 5;
-                            Console.SetCursorPosition()
+                            Console.SetCursorPosition(50, 30);
                             break;
                     }
                 }
@@ -777,9 +776,23 @@ namespace CSharpWork5
         {
 
         }
-        public void PlayerBuyBuilding()
+        public void PlayerBuyBuilding(Player player1)
         {
+            if(bPlayerBuilding[nPlayerOnMap] == true)
+            {
+                if(nPlayerBuildingLevel[nPlayerOnMap] == 1)
+                {
 
+                }
+            }
+            else if (player1.bPlayerBuilding[nPlayerOnMap] == true)
+            {
+
+            }
+            else
+            {
+
+            }
         }
         #endregion
     }
